@@ -1,3 +1,4 @@
+MIGRATION_VERSION ?=1
 postgres:
 	docker run --name postgres12 -p 5455:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:12-alpine
 mysql:
@@ -15,6 +16,18 @@ migrateup:
 migratedown:
 	migrate -path db/migration -database "postgresql://root:secret@localhost:5455/simple_bank?sslmode=disable" -verbose  down
 
+migrateup1:
+	migrate -path db/migration -database "postgresql://root:secret@localhost:5455/simple_bank?sslmode=disable" -verbose up 1
+
+migratedown1:
+	migrate -path db/migration -database "postgresql://root:secret@localhost:5455/simple_bank?sslmode=disable" -verbose  down 1
+
+migratedownN:
+	migrate -path db/migration -database "postgresql://root:secret@localhost:5455/simple_bank?sslmode=disable" -verbose  down $(MIGRATION_VERSION)
+
+migrateupN:
+	migrate -path db/migration -database "postgresql://root:secret@localhost:5455/simple_bank?sslmode=disable" -verbose  up $(MIGRATION_VERSION)
+
 sqlc:
 	sqlc generate
 run:
@@ -26,7 +39,8 @@ test:
 server:
 	go run main.go
 
-.PHONY: postgres createdb dropdb migrateup migratedown sqlc test
+mock:
+	mockgen -package mockdb  -destination=db/mock/store.go github/bekeeeee/simplebank/db/sqlc Store
 
-hello:
-	echo "Hello"
+.PHONY: postgres createdb dropdb migrateup migratedown sqlc test server mock migrateup1 migratedown1 migrateupN migratedownN
+
