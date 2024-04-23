@@ -2,7 +2,9 @@ package api
 
 import (
 	"database/sql"
+	"errors"
 	db "github/bekeeeee/simplebank/db/sqlc"
+	"github/bekeeeee/simplebank/token"
 	"log"
 	"net/http"
 
@@ -21,8 +23,10 @@ func (server *Server) createAccount(ctx *gin.Context){
 		ctx.JSON(http.StatusBadRequest,errorResponse(err))
 		return
 	 }
+
+	 authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
 	 arg := db.CreateAccountParams{
-		Owner: req.Owner,
+		Owner: authPayload.Username,
 		Currency: req.Currency,
 		Balance: 0,
 		}
@@ -53,6 +57,8 @@ func (server *Server) getAccount(ctx *gin.Context){
 	   ctx.JSON(http.StatusBadRequest,errorResponse(err))
 	   return
 	}
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+
 	account,err := server.store.GetAccount(ctx,req.ID);
 	
 	if err != nil {
@@ -62,6 +68,11 @@ func (server *Server) getAccount(ctx *gin.Context){
 		}
 		ctx.JSON(http.StatusInternalServerError,errorResponse(err))
 		return;
+	}
+	if account.Owner != authPayload.Username{
+		err := errors.New("account doesn't belong to the authenticated user")
+		ctx.JSON(http.StatusUnauthorized,errorResponse(err))
+		return
 	}
 	ctx.JSON(http.StatusOK,account)
 }
@@ -80,9 +91,13 @@ func (server *Server) listAccounts(ctx *gin.Context){
 	   ctx.JSON(http.StatusBadRequest,errorResponse(err))
 	   return
 	}
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+
 	accounts,err := server.store.ListAccounts(ctx,db.ListAccountsParams{
 		Limit: req.PageSize,
 		Offset: (req.PageID-1) * req.PageSize,
+		Owner: authPayload.Username,
+		
 	});
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError,errorResponse(err))
