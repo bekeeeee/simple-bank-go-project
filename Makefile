@@ -23,7 +23,7 @@ migratedown1:
 	migrate -path db/migration -database "postgresql://root:secret@localhost:5455/simple_bank?sslmode=disable" -verbose  down 1
 
 migratedownN:
-	migrate -path db/migration -database "postgresql://root:secret@localhost:5455/simple_bank?sslmode=disable" -verbose  down $(MIGRATION_VERSION)
+	migrate -path db/migration -database "postgresql://root:secret@localhost:5455/simple_bank?sslmode=disable" -verbose  down  $(MIGRATION_VERSION) 
 
 migrateupN:
 	migrate -path db/migration -database "postgresql://root:secret@localhost:5455/simple_bank?sslmode=disable" -verbose  up $(MIGRATION_VERSION)
