@@ -1,4 +1,5 @@
-MIGRATION_VERSION ?=1
+DB_URL=postgresql://root:secret@localhost:5455/simple_bank?sslmode=disable
+
 postgres:
 	docker run --name postgres12 -p 5455:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:12-alpine
 mysql:
@@ -11,23 +12,23 @@ dropdb:
 	docker exec -it postgres12 dropdb simple_bank
 
 migrateup:
-	migrate -path db/migration -database "postgresql://root:secret@localhost:5455/simple_bank?sslmode=disable" -verbose up
+	migrate -path db/migration -database "$(DB_URL)" -verbose up
 
 migratedown:
-	migrate -path db/migration -database "postgresql://root:secret@localhost:5455/simple_bank?sslmode=disable" -verbose  down
+	migrate -path db/migration -database "$(DB_URL)" -verbose  down
 
 migrateup1:
-	migrate -path db/migration -database "postgresql://root:secret@localhost:5455/simple_bank?sslmode=disable" -verbose up 1
+	migrate -path db/migration -database "$(DB_URL)" -verbose up 1
 
 migratedown1:
-	migrate -path db/migration -database "postgresql://root:secret@localhost:5455/simple_bank?sslmode=disable" -verbose  down 1
+	migrate -path db/migration -database "$(DB_URL)" -verbose  down 1
 
-migratedownN:
-	migrate -path db/migration -database "postgresql://root:secret@localhost:5455/simple_bank?sslmode=disable" -verbose  down  $(MIGRATION_VERSION) 
+db_docs:
+	dbdocs build doc/db.dbml 
 
-migrateupN:
-	migrate -path db/migration -database "postgresql://root:secret@localhost:5455/simple_bank?sslmode=disable" -verbose  up $(MIGRATION_VERSION)
-
+db_schema:
+	dbml2sql --postgres -o doc/schema.sql doc/db.dbml
+	
 sqlc:
 	sqlc generate
 run:
@@ -42,5 +43,5 @@ server:
 mock:
 	mockgen -package mockdb  -destination=db/mock/store.go github/bekeeeee/simplebank/db/sqlc Store
 
-.PHONY: postgres createdb dropdb migrateup migratedown sqlc test server mock migrateup1 migratedown1 migrateupN migratedownN
+.PHONY: postgres createdb dropdb migrateup migratedown sqlc test server mock migrateup1 migratedown1 migrateupN migratedownN db_docs db_schema
 
