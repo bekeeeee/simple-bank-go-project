@@ -1,0 +1,5 @@
+{
+  "terminal.integrated.env.linux": {
+    "PATH": "/home/beke/go/bin:${env:PATH}"
+  }
+}
