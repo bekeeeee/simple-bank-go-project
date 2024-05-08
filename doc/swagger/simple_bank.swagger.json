@@ -178,11 +178,9 @@
     "pbUpdateUserRequest": {
       "type": "object",
       "properties": {
-        "username": {
-          "type": "string"
-        },
         "fullName": {
-          "type": "string"
+          "type": "string",
+          "title": "string username = 1;"
         },
         "email": {
           "type": "string"

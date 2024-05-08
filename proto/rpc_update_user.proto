@@ -6,7 +6,7 @@ option go_package = "github/bekeeeee/simplebank/pb";
 import "user.proto";
 
 message UpdateUserRequest {
-    string username = 1;
+    // string username = 1;
     optional string full_name = 2;
     optional string email = 3;
     optional string password = 4;

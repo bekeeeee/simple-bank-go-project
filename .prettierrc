@@ -1,8 +1,0 @@
-{
-  "semi": true,
-  "parser": "json",
-  "singleQuote": true,
-  "trailingComma": "all",
-  "tabWidth": 2,
-  "exclude": "**/*.go"
-}

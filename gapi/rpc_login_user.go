@@ -7,7 +7,6 @@ import (
 	"github/bekeeeee/simplebank/pb"
 	"github/bekeeeee/simplebank/util"
 	"github/bekeeeee/simplebank/val"
-	"log"
 
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
@@ -51,7 +50,6 @@ func (server *Server) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (
 	}
 
 	mtdt := server.extractMetadata(ctx)
-	log.Println("metadata:", mtdt.ClientIP+" & "+mtdt.UserAgent)
 	session, err := server.store.CreateSession(ctx, db.CreateSessionParams{
 		ID:           refreshPayload.ID,
 		Username:     user.Username,
