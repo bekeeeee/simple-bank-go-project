@@ -1,6 +1,8 @@
 package db
 
-import "context"
+import (
+	"context"
+)
 
 type CreateUserTxParams struct {
 	CreateUserParams

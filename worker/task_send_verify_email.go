@@ -2,6 +2,7 @@ package worker
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 
@@ -45,6 +46,9 @@ func (processor *RedisTaskProcessor) ProcessTaskSendVerifyEmail(ctx context.Cont
 
 	user, err := processor.store.GetUser(ctx, payload.Username)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return fmt.Errorf("user not found: %w", asynq.SkipRetry)
+		}
 		return fmt.Errorf("failed to get user: %w", err)
 	}
 

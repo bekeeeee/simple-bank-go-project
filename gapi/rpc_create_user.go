@@ -7,7 +7,9 @@ import (
 	"github/bekeeeee/simplebank/util"
 	"github/bekeeeee/simplebank/val"
 	"github/bekeeeee/simplebank/worker"
+	"time"
 
+	"github.com/hibiken/asynq"
 	"github.com/lib/pq"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
@@ -36,7 +38,13 @@ func (server *Server) CreateUser(ctx context.Context, req *pb.CreateUserRequest)
 				Username: user.Username,
 			}
 
-			err = server.taskDistributor.DistributeTaskSendVerifyEmail(ctx, taskPayload)
+			opts := []asynq.Option{
+				asynq.MaxRetry(10),
+				asynq.ProcessIn(10 * time.Second),
+				asynq.Queue("critical"),
+			}
+
+			err = server.taskDistributor.DistributeTaskSendVerifyEmail(ctx, taskPayload, opts...)
 
 			if err != nil {
 				return status.Errorf(codes.Internal, "failed to send verify email to server: %v", err)
